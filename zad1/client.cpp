@@ -30,6 +30,7 @@ int main() {
 
 	std::string asciiArtMsg = std::format("{}: [{}]", id, text::convertTo<char>(std::u32string_view(common::asciiArt)));
 
+	std::string varBuf;
 	for (;;) {
 		if (not tcp.connectedForce()) {
 			break;
@@ -51,10 +52,17 @@ int main() {
 			tcp.send(input);
 		}
 
-		if (tcp.dataAvalible()) {
+		while (tcp.dataAvalible()) {
 			char buf[128]{};
-			tcp.recv(buf, sizeof(buf));
-			std::println("{}", buf);
+			int len;
+			tcp.recv(buf, sizeof(buf), len);
+			varBuf.append(buf, len);
+
+			for (auto n = varBuf.find('\033'); n != std::string::npos; n = varBuf.find('\033')) {
+				std::println("{}", std::string_view(varBuf.data(), varBuf.data() + n));
+				varBuf.erase(0, n + 1);
+
+			}
 		}
 		if (udp.dataAvalible()) {
 			char buf[sizeof(common::asciiArt) + 128]{};
