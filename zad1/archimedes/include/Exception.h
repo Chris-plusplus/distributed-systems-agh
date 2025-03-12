@@ -2,8 +2,7 @@
 
 #include <exception>
 #include <source_location>
-
-#include "Logger.h"
+#include <string>
 
 namespace arch {
 
@@ -30,7 +29,7 @@ public:
 	/// print the exception to the console.
 	/// @param level Log level of the exception.
 	///
-	void print(LogLevel level = LogLevel::error) const;
+	// void print(LogLevel level = LogLevel::error) const;
 
 	// Inherited form std::exception Get Exception message.
 	/// @return Exception message.

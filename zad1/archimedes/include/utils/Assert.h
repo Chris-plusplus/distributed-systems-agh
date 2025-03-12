@@ -3,15 +3,12 @@
 #include <cassert>
 #include <cstdlib>
 
-#include <Logger.h>
-
 #if ARCHIMEDES_DEBUG
 
 /// @brief Macro for creating debug-only asserts, logs and calls std::abort() on fail
-#define ARCH_ASSERT(cond, msg)                                              \
-	if (!(cond)) {                                                          \
-		::arch::Logger::error("Assertion `{}` failed: \"{}\"", #cond, msg); \
-		::std::abort();                                                     \
+#define ARCH_ASSERT(cond, msg) \
+	if (!(cond)) {             \
+		::std::abort();        \
 	}
 
 #else
@@ -22,8 +19,7 @@
 #endif
 
 /// @brief Macro for creating asserts, logs and calls std::abort() on fail
-#define ARCH_FORCE_ASSERT(cond, msg)                                        \
-	if (!(cond)) {                                                          \
-		::arch::Logger::error("Assertion `{}` failed: \"{}\"", #cond, msg); \
-		::std::abort();                                                     \
+#define ARCH_FORCE_ASSERT(cond, msg) \
+	if (!(cond)) {                   \
+		::std::abort();              \
 	}
