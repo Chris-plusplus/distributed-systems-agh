@@ -37,7 +37,6 @@ struct SocketComponent {
 	net::TCPSocket tcp;
 };
 
-//template<net::Socket::Protocol>
 struct ThreadSafeQueueComponent {
 	static constexpr bool inPlaceComponent = true;
 
@@ -45,23 +44,13 @@ struct ThreadSafeQueueComponent {
 	std::queue<std::string> queue{};
 };
 
-//template<net::Socket::Protocol P>
-//void addMsgToClients(std::string msg, const ecs::Entity sender) noexcept {
-//	auto lock = std::lock_guard(domainMutex);
-//	for (auto&& [client, q, id] : domain.view<ThreadSafeQueueComponent<P>, int>().all()) {
-//		if (client != sender) {
-//			auto lock = std::lock_guard(*q.mutex);
-//			q.queue.push(std::format("{}: '{}'", id, msg));
-//		}
-//	}
-//}
-
 void addTCPMsgToClients(std::string msg, const ecs::Entity sender) noexcept {
 	auto lock = std::lock_guard(domainMutex);
-	for (auto&& [client, q, id] : domain.view<ThreadSafeQueueComponent, int>().all()) {
+	auto id = domain.getComponent<int>(sender);
+	for (auto&& [client, q] : domain.view<ThreadSafeQueueComponent>().all()) {
 		if (client != sender) {
 			auto lock = std::lock_guard(*q.mutex);
-			q.queue.push(std::format("{}: '{}'", id, msg));
+			q.queue.push(std::format("{}: '{}'\033", id, msg));
 		}
 	}
 }
