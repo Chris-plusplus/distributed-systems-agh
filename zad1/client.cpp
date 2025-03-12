@@ -64,7 +64,7 @@ int main() {
 
 			}
 		}
-		if (udp.dataAvalible()) {
+		while (udp.dataAvalible()) {
 			char buf[sizeof(common::asciiArt) + 128]{};
 			udp.recv(buf, sizeof(buf));
 			std::println("{}", buf);
