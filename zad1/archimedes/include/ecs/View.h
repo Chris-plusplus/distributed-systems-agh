@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <ranges>
 #include <type_traits>
 
