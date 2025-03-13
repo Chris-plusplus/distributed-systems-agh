@@ -298,7 +298,7 @@ bool Socket::multicastSubscribe(IPv4 multicastAddress) {
 		return false;
 	}
 
-	_multicast.imr_multiaddr.s_addr = inet_addr(multicastAddress.str().c_str());
+	_multicast.imr_multiaddr = multicastAddress;
 	_multicast.imr_interface.s_addr = htonl(INADDR_ANY);
 
 	int result = setsockopt(_socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char*)&_multicast, sizeof(_multicast));
