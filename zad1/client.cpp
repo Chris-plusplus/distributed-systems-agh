@@ -28,6 +28,11 @@ int main() {
 	net::UDPSocket udp;
 	udp.bind(common::port + id + 1);
 
+	net::UDPSocket udpMcast;
+	udpMcast.reuse(true);
+	udpMcast.bind(common::port - 1);
+	udpMcast.multicastSubscribe(common::multicastAddress);
+
 	std::string asciiArtMsg = std::format("{}: [{}]", id, text::convertTo<char>(std::u32string_view(common::asciiArt)));
 
 	std::string varBuf;
@@ -47,8 +52,15 @@ int main() {
 			else if (action == 'U') {
 				udp.sendTo(server, common::port, asciiArtMsg);
 			}
+			else if (action == 'M') {
+				udpMcast.sendTo(common::multicastAddress, common::port - 1, asciiArtMsg);
+			}
+			else {
+				goto _tcpSend;
+			}
 		}
 		else if (input.length() != 0) {
+		_tcpSend:
 			tcp.send(input);
 		}
 
@@ -61,12 +73,25 @@ int main() {
 			for (auto n = varBuf.find('\033'); n != std::string::npos; n = varBuf.find('\033')) {
 				std::println("{}", std::string_view(varBuf.data(), varBuf.data() + n));
 				varBuf.erase(0, n + 1);
-
 			}
 		}
 		while (udp.dataAvalible()) {
 			char buf[sizeof(common::asciiArt) + 128]{};
 			udp.recv(buf, sizeof(buf));
+			std::println("{}", buf);
+		}
+		while (udpMcast.dataAvalible()) {
+			char buf[sizeof(common::asciiArt) + 128]{};
+			udpMcast.recv(buf, sizeof(buf));
+			auto sv = std::string_view(buf);
+			auto n = sv.find(':');
+			if (n != std::string::npos) {
+				int fromID = -1;
+				std::from_chars(buf, buf + n, fromID);
+				if (fromID == id) {
+					continue;
+				}
+			}
 			std::println("{}", buf);
 		}
 	}
