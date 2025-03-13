@@ -121,6 +121,9 @@ public:
 	///
 	void reuse(bool newVal);
 
+	bool multicastSubscribe(IPv4 multicastAddress);
+	void multicastUnsubscribe();
+
 protected:
 	Socket(Protocol protocol);
 	Socket(Protocol protocol, IPv4 address, Port port);
@@ -134,5 +137,6 @@ protected:
 	IPv4 _address{ (uint32_t)0 };
 	Port _port = 0;
 	Protocol _proto = Protocol::none;
+	ip_mreq _multicast = {};
 };
 } // namespace arch::net

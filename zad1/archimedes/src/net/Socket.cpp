@@ -13,11 +13,13 @@ Socket::Socket(Socket&& other) {
 	_address = other._address;
 	_port = other._port;
 	_proto = other._proto;
+	_multicast = other._multicast;
 
 	other._socket = INVALID_SOCKET;
 	other._address = {};
 	other._port = {};
 	other._proto = Protocol::none;
+	other._multicast = {};
 }
 
 Socket& Socket::operator=(Socket&& other) {
@@ -25,11 +27,13 @@ Socket& Socket::operator=(Socket&& other) {
 	_address = other._address;
 	_port = other._port;
 	_proto = other._proto;
+	_multicast = other._multicast;
 
 	other._socket = INVALID_SOCKET;
 	other._address = {};
 	other._port = {};
 	other._proto = Protocol::none;
+	other._multicast = {};
 
 	return *this;
 }
@@ -57,6 +61,7 @@ Socket::Socket(Protocol protocol, Port port): Socket(protocol) {
 }
 
 Socket::~Socket() {
+	multicastUnsubscribe();
 	close();
 }
 
@@ -286,6 +291,29 @@ void Socket::reuse(bool newVal) {
 		throw NetException(gai_strerror(netErrno(result)));
 	}
 #endif
+}
+
+bool Socket::multicastSubscribe(IPv4 multicastAddress) {
+	if (_multicast.imr_multiaddr.s_addr != 0) {
+		return false;
+	}
+
+	_multicast.imr_multiaddr.s_addr = inet_addr(multicastAddress.str().c_str());
+	_multicast.imr_interface.s_addr = htonl(INADDR_ANY);
+
+	int result = setsockopt(_socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char*)&_multicast, sizeof(_multicast));
+	if (result != 0) {
+		throw NetException(gai_strerror(netErrno(result)));
+	}
+	return true;
+}
+
+void Socket::multicastUnsubscribe() {
+	if (_multicast.imr_multiaddr.s_addr == 0) {
+		return;
+	}
+
+	setsockopt(_socket, IPPROTO_IP, IP_DROP_MEMBERSHIP, (const char*)&_multicast, sizeof(_multicast));
 }
 
 } // namespace arch::net
