@@ -25,9 +25,7 @@ void lockedPrintln(std::format_string<Args...> fmt, Args&&... args) {
 }
 
 int newID() {
-	static std::mutex mutex;
 	static int id = 0;
-	auto lock = std::lock_guard(mutex);
 	return id++;
 }
 
