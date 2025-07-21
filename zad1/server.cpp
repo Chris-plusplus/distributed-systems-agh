@@ -25,7 +25,9 @@ void lockedPrintln(std::format_string<Args...> fmt, Args&&... args) {
 }
 
 int newID() {
+	static std::mutex mutex;
 	static int id = 0;
+	auto lock = std::lock_guard(mutex);
 	return id++;
 }
 
@@ -35,6 +37,7 @@ struct SocketComponent {
 	net::TCPSocket tcp;
 };
 
+//template<net::Socket::Protocol>
 struct ThreadSafeQueueComponent {
 	static constexpr bool inPlaceComponent = true;
 
@@ -42,13 +45,23 @@ struct ThreadSafeQueueComponent {
 	std::queue<std::string> queue{};
 };
 
+//template<net::Socket::Protocol P>
+//void addMsgToClients(std::string msg, const ecs::Entity sender) noexcept {
+//	auto lock = std::lock_guard(domainMutex);
+//	for (auto&& [client, q, id] : domain.view<ThreadSafeQueueComponent<P>, int>().all()) {
+//		if (client != sender) {
+//			auto lock = std::lock_guard(*q.mutex);
+//			q.queue.push(std::format("{}: '{}'", id, msg));
+//		}
+//	}
+//}
+
 void addTCPMsgToClients(std::string msg, const ecs::Entity sender) noexcept {
 	auto lock = std::lock_guard(domainMutex);
-	auto id = domain.getComponent<int>(sender);
-	for (auto&& [client, q] : domain.view<ThreadSafeQueueComponent>().all()) {
+	for (auto&& [client, q, id] : domain.view<ThreadSafeQueueComponent, int>().all()) {
 		if (client != sender) {
 			auto lock = std::lock_guard(*q.mutex);
-			q.queue.push(std::format("{}: '{}'\033", id, msg));
+			q.queue.push(std::format("{}: '{}'", id, msg));
 		}
 	}
 }

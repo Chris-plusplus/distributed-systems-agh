@@ -17,27 +17,27 @@ TCPSocket::~TCPSocket() {
 	Socket::~Socket();
 }
 
-TCPSocket::TCPSocket(TCPSocket&& other): Socket(std::move(other)) {
-	_peerAddr = other._peerAddr;
-	_status = other._status;
+IPv4 TCPSocket::peer() const noexcept {
+	return _peerAddr;
+}
 
+TCPSocket::TCPSocket(TCPSocket&& other):
+	Socket(std::move(other)),
+	_peerAddr{ std::move(other._peerAddr) },
+	_status{ other._status } {
 	other._peerAddr = {};
-	other._status = {};
+	other._status = 0;
 }
 
 TCPSocket& TCPSocket::operator=(TCPSocket&& other) {
 	Socket::operator=(std::move(other));
-	_peerAddr = other._peerAddr;
+	_peerAddr = std::move(other._peerAddr);
 	_status = other._status;
 
 	other._peerAddr = {};
-	other._status = {};
+	other._status = 0;
 
 	return *this;
-}
-
-IPv4 TCPSocket::peer() const noexcept {
-	return _peerAddr;
 }
 
 TCPSocket::LingerData TCPSocket::linger() const {
@@ -129,30 +129,34 @@ bool TCPSocket::connectedForce() {
 		return false;
 	}
 
-	pollfd pfd;
+	struct pollfd pfd;
 	pfd.fd = _socket;
 	pfd.events = POLLIN;
-	int result = poll(&pfd, 1, 0);
-	if (result == 0) {
+
+	int pollResult = poll(&pfd, 1, 0);
+
+	if (pollResult == 0) {
 		return _status & 1;
 	}
 
 	char buf;
-	result = ::recv(_socket, &buf, 1, MSG_PEEK);
+	int result = ::recv(_socket, &buf, 1, MSG_PEEK);
+
 	if (result > 0) {
 		_status = 1;
+		return true;
 	} else if (result == 0) {
 		_status = 0;
+		return false;
 	} else {
 		auto err = netErrno();
 		if (err == EWOULDBLOCK || err == EAGAIN) {
 			_status = 1;
-		} else {
-			_status = 0;
+			return true;
 		}
+		_status = 0;
+		return false;
 	}
-
-	return _status & 1;
 }
 
 bool TCPSocket::listen() {
@@ -264,7 +268,7 @@ bool TCPSocket::recv(char* buf, int buflen, int& length, bool peek) {
 		return false;
 	}
 
-	int result = ::recv(_socket, buf, buflen, peek ? MSG_PEEK : 0);
+	int result = ::recv(_socket, buf, buflen, 0);
 	if (result == SOCKET_ERROR) {
 		throw NetException(gai_strerror(netErrno()));
 	}

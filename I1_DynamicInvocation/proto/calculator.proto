@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "agh.distrib.calculator";
+option java_outer_classname = "CalcProto";
+
+package calculator;
+
+message SeqArgs {
+  repeated double args = 1;
+}
+
+message DefaultArgs {
+  double arg1 = 1;
+  double arg2 = 2;
+}
+
+message CalcResult {
+  double value = 1;
+}
+
+message SingleInt {
+  int64 value = 1;
+}
+
+service Calculator {
+  rpc add (SeqArgs) returns (CalcResult);
+  rpc mul (DefaultArgs) returns (CalcResult);
+  rpc pow (DefaultArgs) returns (CalcResult);
+  rpc fib (SingleInt) returns (stream SingleInt);
+}

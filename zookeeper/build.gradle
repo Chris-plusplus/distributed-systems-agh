@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'agh.distrib'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.apache.zookeeper:zookeeper:3.8.4'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+run {
+    args 'localhost:2183', 'C:/repos/archimedes2/run/archimedes_bin.exe'
+}
+
+application {
+    mainClass.set("agh.distrib.ZDWatcher")
+}

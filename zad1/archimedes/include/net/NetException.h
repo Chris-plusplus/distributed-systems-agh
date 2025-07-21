@@ -17,6 +17,6 @@ public:
 };
 
 // Alias for ease of use.
-using Exception = NetException;
+// using Exception = NetException;
 
 } // namespace arch::net

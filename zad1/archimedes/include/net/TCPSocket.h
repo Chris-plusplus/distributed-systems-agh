@@ -48,12 +48,16 @@ public:
 	/// @brief Deleted copy-constructor.
 	///
 	TCPSocket(TCPSocket&) = delete;
-	/// @brief Move-constructor.
+	/// @brief Default move-constructor.
 	///
-	TCPSocket(TCPSocket&&);
+	TCPSocket(TCPSocket&& other);
 	/// @brief Destructor.
 	///
 	~TCPSocket();
+
+	/// @brief Returns peer IPv4.
+	///
+	IPv4 peer() const noexcept;
 
 	/// @brief Deleted assignment operator.
 	///
@@ -64,10 +68,6 @@ public:
 	/// @brief Deleted assignment operator.
 	///
 	TCPSocket& operator=(TCPSocket&& other);
-
-	/// @brief Returns peer's IPv4
-	///
-	IPv4 peer() const noexcept;
 
 	/// @brief Returns current linger data of socket.
 	///

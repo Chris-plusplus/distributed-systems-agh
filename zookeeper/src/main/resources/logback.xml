@@ -1,0 +1,5 @@
+<configuration>
+    <logger name="org.apache.zookeeper" level="OFF"/>
+    <logger name="org.apache.zookeeper.ClientCnxn" level="OFF"/>
+    <root level="OFF"/>
+</configuration>

@@ -1,0 +1,16 @@
+<form action="/projects" method="get">
+<h1>Most <select id="mostX" name="mostX">$most</select> languages at Github and Gitlab</h1>
+    <label for="count">Project count:</label>
+    <br>
+    <input type="number" name="count" id="count" min="$minCount" max="$maxCount" value="$defaultCount">
+    <br>
+    <label for="scoring">Scoring:</label>
+    <br>
+    <select id="scoring" name="scoring">$scoring</select>
+    <br>
+    <Label for="customGitlabHosts">Custom Gitlab Hosts:</Label>
+    <br>
+    <textarea name="customGitlabHosts" id="customGitlabHosts"></textarea>
+    <br>
+    <input type="submit" value="Process">
+</form>
